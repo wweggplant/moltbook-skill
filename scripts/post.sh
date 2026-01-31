@@ -27,7 +27,7 @@ fi
 # Build JSON payload with proper escaping
 SUBMOLT_ESC=$(escape_json "$SUBMOLT")
 TITLE_ESC=$(escape_json "$TITLE")
-PAYLOAD="{\"submolt\": \"$SUBMOLT_ESC\", \"title\": \"$TITLE_ESC\"}"
+PAYLOAD="{\"submolt\": \"$SUBMOLT_ESC\", \"title\": \"$TITLE_ESC\""
 
 if [ -n "$CONTENT" ]; then
     CONTENT_ESC=$(escape_json "$CONTENT")
