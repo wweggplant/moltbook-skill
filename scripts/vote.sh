@@ -3,15 +3,13 @@
 # Usage: ./vote.sh <post|comment> <up|down> <id>
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-API_KEY=$("$SCRIPT_DIR/get_api_key.sh")
+source "$SCRIPT_DIR/moltbook_api.sh"
 
-if [ -z "$API_KEY" ]; then
+if [ -z "$MOLTBOOK_API_KEY" ]; then
     echo "Error: MOLTBOOK_API_KEY not found"
     echo "Set it via: export MOLTBOOK_API_KEY=your_key"
     exit 1
 fi
-
-BASE_URL="https://www.moltbook.com/api/v1"
 
 TYPE="$1"
 VOTE_TYPE="$2"
@@ -42,7 +40,6 @@ else
 fi
 
 echo "${VOTE_TYPE}voting $TYPE $ID..."
-RESPONSE=$(curl -s -X POST "$ENDPOINT" \
-    -H "Authorization: Bearer $API_KEY")
+RESPONSE=$(moltbook_curl -s -X POST "$ENDPOINT")
 
-echo "$RESPONSE" | python3 -m json.tool
+echo "$RESPONSE" | format_response

@@ -3,15 +3,13 @@
 # Usage: ./search.sh <query> [limit]
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-API_KEY=$("$SCRIPT_DIR/get_api_key.sh")
+source "$SCRIPT_DIR/moltbook_api.sh"
 
-if [ -z "$API_KEY" ]; then
+if [ -z "$MOLTBOOK_API_KEY" ]; then
     echo "Error: MOLTBOOK_API_KEY not found"
     echo "Set it via: export MOLTBOOK_API_KEY=your_key"
     exit 1
 fi
-
-BASE_URL="https://www.moltbook.com/api/v1"
 
 QUERY="$1"
 LIMIT="${2:-25}"
@@ -26,10 +24,9 @@ fi
 ENCODED_QUERY=$(echo "$QUERY" | sed 's/ /%20/g')
 
 echo "Searching Moltbook for: $QUERY"
-RESPONSE=$(curl -s "$BASE_URL/search?q=$ENCODED_QUERY&limit=$LIMIT" \
-    -H "Authorization: Bearer $API_KEY")
+RESPONSE=$(moltbook_curl -s "$BASE_URL/search?q=$ENCODED_QUERY&limit=$LIMIT")
 
-echo "$RESPONSE" | python3 -m json.tool
+echo "$RESPONSE" | format_response
 
 # Show summary
 POSTS=$(echo "$RESPONSE" | grep -o '"posts"' | wc -l | tr -d ' ')

@@ -60,7 +60,7 @@ echo ""
 # ==========================================
 echo "=== Test 1: Script Files Existence ==="
 
-for script in get_api_key.sh register.sh post.sh comment.sh vote.sh feed.sh search.sh; do
+for script in moltbook_api.sh get_api_key.sh register.sh status.sh post.sh comment.sh vote.sh feed.sh search.sh subscribe.sh unsubscribe.sh; do
     if [ -f "$SCRIPT_DIR/scripts/$script" ]; then
         echo -e "${GREEN}✓${NC} $script exists"
         ((PASSED++))
@@ -213,6 +213,26 @@ if echo "$OUTPUT" | grep -q "Usage:"; then
     ((PASSED++))
 else
     echo -e "${RED}✗ FAIL${NC}: post.sh should show usage without arguments"
+    ((FAILED++))
+fi
+
+# Test subscribe.sh without arguments
+OUTPUT=$("$SCRIPT_DIR/scripts/subscribe.sh" 2>&1)
+if echo "$OUTPUT" | grep -q "Usage:"; then
+    echo -e "${GREEN}✓ PASS${NC}: subscribe.sh shows usage without arguments"
+    ((PASSED++))
+else
+    echo -e "${RED}✗ FAIL${NC}: subscribe.sh should show usage without arguments"
+    ((FAILED++))
+fi
+
+# Test unsubscribe.sh without arguments
+OUTPUT=$("$SCRIPT_DIR/scripts/unsubscribe.sh" 2>&1)
+if echo "$OUTPUT" | grep -q "Usage:"; then
+    echo -e "${GREEN}✓ PASS${NC}: unsubscribe.sh shows usage without arguments"
+    ((PASSED++))
+else
+    echo -e "${RED}✗ FAIL${NC}: unsubscribe.sh should show usage without arguments"
     ((FAILED++))
 fi
 

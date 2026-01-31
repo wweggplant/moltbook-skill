@@ -44,6 +44,7 @@ echo ""
 echo "=== Test 1: Get Agent Profile ==="
 OUTPUT=$("$SCRIPT_DIR/scripts/get_api_key.sh")
 RESPONSE=$(curl -s "https://moltbook.com/api/v1/agents/me" \
+    --location-trusted \
     -H "Authorization: Bearer $API_KEY")
 
 if echo "$RESPONSE" | grep -q '"success":[[:space:]]*true'; then
@@ -65,6 +66,7 @@ echo ""
 # ==========================================
 echo "=== Test 2: Get Feed ==="
 RESPONSE=$(curl -s "https://moltbook.com/api/v1/feed?sort=new&limit=5" \
+    --location-trusted \
     -H "Authorization: Bearer $API_KEY")
 
 if echo "$RESPONSE" | grep -q '"success":[[:space:]]*true'; then
@@ -83,6 +85,7 @@ echo ""
 # ==========================================
 echo "=== Test 3: Search ==="
 RESPONSE=$(curl -s "https://moltbook.com/api/v1/search?q=ai&limit=5" \
+    --location-trusted \
     -H "Authorization: Bearer $API_KEY")
 
 if echo "$RESPONSE" | grep -q '"success":[[:space:]]*true'; then
@@ -113,6 +116,7 @@ echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     RESPONSE=$(curl -s -X POST "https://moltbook.com/api/v1/posts" \
+        --location-trusted \
         -H "Authorization: Bearer $API_KEY" \
         -H "Content-Type: application/json" \
         -d '{"submolt": "general", "title": "I am a Claude Code skill assistant", "content": "Ask me anything about this skill!"}')
@@ -144,6 +148,7 @@ echo ""
 # ==========================================
 echo "=== Test 5: List Submolts ==="
 RESPONSE=$(curl -s "https://moltbook.com/api/v1/submolts" \
+    --location-trusted \
     -H "Authorization: Bearer $API_KEY")
 
 if echo "$RESPONSE" | grep -q '"success":[[:space:]]*true'; then
@@ -153,6 +158,64 @@ else
     echo -e "${RED}✗ FAIL${NC}: Failed to retrieve submolts"
     echo "  Response: $RESPONSE"
     ((FAILED++))
+fi
+
+echo ""
+
+# ==========================================
+# Test 6: Subscribe to submolt
+# ==========================================
+echo "=== Test 6: Subscribe to Submolt ==="
+echo "This test will subscribe to the 'general' submolt."
+echo ""
+
+read -p "Do you want to proceed? (y/N): " -n 1 -r
+echo ""
+
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    RESPONSE=$(curl -s -X POST "https://moltbook.com/api/v1/submolts/general/subscribe" \
+        --location-trusted \
+        -H "Authorization: Bearer $API_KEY")
+
+    if echo "$RESPONSE" | grep -q '"success":[[:space:]]*true'; then
+        echo -e "${GREEN}✓ PASS${NC}: Successfully subscribed to general"
+        ((PASSED++))
+    else
+        echo -e "${RED}✗ FAIL${NC}: Failed to subscribe"
+        echo "  Response: $RESPONSE"
+        ((FAILED++))
+    fi
+else
+    echo -e "${YELLOW}⊘ SKIP${NC}: Subscribe skipped by user"
+fi
+
+echo ""
+
+# ==========================================
+# Test 7: Unsubscribe from submolt
+# ==========================================
+echo "=== Test 7: Unsubscribe from Submolt ==="
+echo "This test will unsubscribe from the 'general' submolt."
+echo ""
+
+read -p "Do you want to proceed? (y/N): " -n 1 -r
+echo ""
+
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    RESPONSE=$(curl -s -X DELETE "https://moltbook.com/api/v1/submolts/general/subscribe" \
+        --location-trusted \
+        -H "Authorization: Bearer $API_KEY")
+
+    if echo "$RESPONSE" | grep -q '"success":[[:space:]]*true'; then
+        echo -e "${GREEN}✓ PASS${NC}: Successfully unsubscribed from general"
+        ((PASSED++))
+    else
+        echo -e "${RED}✗ FAIL${NC}: Failed to unsubscribe"
+        echo "  Response: $RESPONSE"
+        ((FAILED++))
+    fi
+else
+    echo -e "${YELLOW}⊘ SKIP${NC}: Unsubscribe skipped by user"
 fi
 
 echo ""

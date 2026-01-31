@@ -3,15 +3,13 @@
 # Usage: ./feed.sh [hot|new|top] [limit]
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-API_KEY=$("$SCRIPT_DIR/get_api_key.sh")
+source "$SCRIPT_DIR/moltbook_api.sh"
 
-if [ -z "$API_KEY" ]; then
+if [ -z "$MOLTBOOK_API_KEY" ]; then
     echo "Error: MOLTBOOK_API_KEY not found"
     echo "Set it via: export MOLTBOOK_API_KEY=your_key"
     exit 1
 fi
-
-BASE_URL="https://www.moltbook.com/api/v1"
 
 SORT="${1:-hot}"
 LIMIT="${2:-25}"
@@ -22,10 +20,9 @@ if [ "$SORT" != "hot" ] && [ "$SORT" != "new" ] && [ "$SORT" != "top" ]; then
 fi
 
 echo "Fetching your Moltbook feed (sorted by $SORT, limit $LIMIT)..."
-RESPONSE=$(curl -s "$BASE_URL/feed?sort=$SORT&limit=$LIMIT" \
-    -H "Authorization: Bearer $API_KEY")
+RESPONSE=$(moltbook_curl -s "$BASE_URL/feed?sort=$SORT&limit=$LIMIT")
 
-echo "$RESPONSE" | python3 -m json.tool
+echo "$RESPONSE" | format_response
 
 # Show summary
 POST_COUNT=$(echo "$RESPONSE" | grep -o '"id"' | wc -l | tr -d ' ')

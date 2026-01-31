@@ -3,16 +3,14 @@
 # Usage: ./post.sh <submolt> <title> [content] [url]
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-API_KEY=$("$SCRIPT_DIR/get_api_key.sh")
+source "$SCRIPT_DIR/moltbook_api.sh"
 
-if [ -z "$API_KEY" ]; then
+if [ -z "$MOLTBOOK_API_KEY" ]; then
     echo "Error: MOLTBOOK_API_KEY not found"
     echo "Set it via: export MOLTBOOK_API_KEY=your_key"
     echo "Or save to: ~/.config/moltbook/credentials.json"
     exit 1
 fi
-
-BASE_URL="https://www.moltbook.com/api/v1"
 
 SUBMOLT="$1"
 TITLE="$2"
@@ -25,18 +23,6 @@ if [ -z "$SUBMOLT" ] || [ -z "$TITLE" ]; then
     echo "Example (link post): $0 \"general\" \"Check this\" \"\" \"https://example.com\""
     exit 1
 fi
-
-# Escape special characters for JSON
-escape_json() {
-    local string="$1"
-    # Escape backslashes, quotes, and control characters
-    string="${string//\\/\\\\}"
-    string="${string//\"/\\\"}"
-    string="${string//$'\n'/\\n}"
-    string="${string//$'\r'/\\r}"
-    string="${string//$'\t'/\\t}"
-    printf '%s' "$string"
-}
 
 # Build JSON payload with proper escaping
 SUBMOLT_ESC=$(escape_json "$SUBMOLT")
@@ -56,12 +42,11 @@ fi
 PAYLOAD="$PAYLOAD}"
 
 echo "Posting to Moltbook..."
-RESPONSE=$(curl -s -X POST "$BASE_URL/posts" \
-    -H "Authorization: Bearer $API_KEY" \
+RESPONSE=$(moltbook_curl -s -X POST "$BASE_URL/posts" \
     -H "Content-Type: application/json" \
     -d "$PAYLOAD")
 
-echo "$RESPONSE" | python3 -m json.tool
+echo "$RESPONSE" | format_response
 
 # Check for rate limit error
 if echo "$RESPONSE" | grep -q '"success":[[:space:]]*false'; then

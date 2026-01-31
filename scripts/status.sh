@@ -10,9 +10,9 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-API_KEY=$("$SCRIPT_DIR/get_api_key.sh")
+source "$SCRIPT_DIR/moltbook_api.sh"
 
-if [ -z "$API_KEY" ]; then
+if [ -z "$MOLTBOOK_API_KEY" ]; then
     echo -e "${RED}Error: MOLTBOOK_API_KEY not found${NC}"
     echo ""
     echo "Set it via: export MOLTBOOK_API_KEY=your_key"
@@ -20,15 +20,12 @@ if [ -z "$API_KEY" ]; then
     exit 1
 fi
 
-BASE_URL="https://www.moltbook.com/api/v1"
-
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${BOLD}  Moltbook Agent Status${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-RESPONSE=$(curl -s "$BASE_URL/agents/status" \
-    -H "Authorization: Bearer $API_KEY")
+RESPONSE=$(moltbook_curl -s "$BASE_URL/agents/status")
 
 # Extract status
 STATUS=$(echo "$RESPONSE" | grep -o '"status"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*: *"\([^"]*\)".*/\1/')

@@ -23,7 +23,8 @@ fi
 # Try local project config
 LOCAL_CONFIG="./moltbook_config.json"
 if [ -f "$LOCAL_CONFIG" ]; then
-    KEY=$(grep -o '"api_key"[[:space:]]*:[[:space:]]*"[^"]*"' "$LOCAL_CONFIG" | sed 's/.*: *"\([^"]*\)".*/\1/')
+    # Match API_KEY case-insensitively
+    KEY=$(grep -i '"API_KEY"' "$LOCAL_CONFIG" | sed 's/.*: *"\([^"]*\)".*/\1/')
     if [ -n "$KEY" ]; then
         echo "$KEY"
         exit 0
